@@ -1,18 +1,33 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateAdresDto } from './dto/update-user-adress.dto';
 import { UpdateFIODto } from './dto/update-user-fio.dto';
 import { UpdatePassportDto } from './dto/update-user-passport.dto';
-import { UpdatePhoneDto } from './dto/update-user-pnohe.dto';
+import { UpdateCommonDto } from './dto/update-user-common.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  create(createUserDto: CreateUserDto) {
-    return this.prisma.user.create({ data: createUserDto });
+  async create(createUserDto: CreateUserDto) {
+    const hashPassword = await bcrypt.hash(createUserDto.password, 5);
+
+    if (
+      await this.prisma.user.findUnique({
+        where: { login: createUserDto.login },
+      })
+    )
+      throw new HttpException(
+        'user with the same name already exist',
+        HttpStatus.FORBIDDEN,
+      );
+    const user = this.prisma.user.create({
+      data: { ...createUserDto, password: hashPassword },
+    });
+    return user;
   }
 
   findAll() {
@@ -21,7 +36,7 @@ export class UsersService {
         Adress: true,
         Passport: true,
         FIO: true,
-        PhoneNumber: true,
+        Common: true,
       },
     });
   }
@@ -74,16 +89,16 @@ export class UsersService {
     });
   }
 
-  updatePhone(id: number, updatePhoneDto: UpdatePhoneDto) {
+  updateCommon(id: number, updateCommonDto: UpdateCommonDto) {
     return this.prisma.user.update({
       where: {
         id: id,
       },
       data: {
-        PhoneNumber: {
+        Common: {
           upsert: {
-            create: { ...updatePhoneDto },
-            update: { ...updatePhoneDto },
+            create: { ...updateCommonDto },
+            update: { ...updateCommonDto },
           },
         },
       },
@@ -95,7 +110,7 @@ export class UsersService {
     passport: boolean,
     adress: boolean,
     fio: boolean,
-    phone: boolean,
+    common: boolean,
   ) {
     return this.prisma.user.findUnique({
       where: { id: id },
@@ -103,8 +118,14 @@ export class UsersService {
         Adress: adress,
         Passport: passport,
         FIO: fio,
-        PhoneNumber: phone,
+        Common: common,
       },
+    });
+  }
+
+  async findByLogin(login: string) {
+    return await this.prisma.user.findUnique({
+      where: { login: login },
     });
   }
 

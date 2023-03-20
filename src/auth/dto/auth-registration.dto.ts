@@ -3,23 +3,21 @@ import {
   IsNotEmpty,
   IsString,
   IsStrongPassword,
-  MaxLength,
+  Length,
   MinLength,
 } from 'class-validator';
 
-export class CreateUserDto {
+export class RegistrationDto {
   @IsString()
   @IsNotEmpty()
   @MinLength(5)
-  @MaxLength(20)
   @ApiProperty()
   login: string;
 
   @IsString()
   @IsNotEmpty()
-  @MinLength(8)
-  @MaxLength(20)
+  @Length(8, 20)
   @ApiProperty()
-  @IsStrongPassword()
+  //   @IsStrongPassword()
   password: string;
 }

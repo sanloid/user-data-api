@@ -32,9 +32,10 @@ async function main() {
           issuedWhen: set(new Date(), { hours: 1, minutes: 10 }),
         },
       },
-      PhoneNumber: {
+      Common: {
         create: {
           phoneNumber: '12345678',
+          dateOfBirth: set(new Date(), { hours: 1, minutes: 10 }),
         },
       },
     },

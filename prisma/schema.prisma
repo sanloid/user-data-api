@@ -16,22 +16,23 @@ enum Role {
 }
 
 model User {
-  id          Int          @id @default(autoincrement())
-  FIO         UserName?
-  Adress      Adress?
-  Passport    Passport?
-  PhoneNumber PhoneNumber?
-  Request     Request[]
-  role        Role         @default(USER)
-  login       String       @unique
-  password    String
+  id       Int       @id @default(autoincrement())
+  FIO      UserName?
+  Adress   Adress?
+  Passport Passport?
+  Common   Common?
+  Request  Request[]
+  role     Role      @default(USER)
+  login    String    @unique
+  password String
 }
 
-model PhoneNumber {
-  id          Int    @id @default(autoincrement())
-  phoneNumber String @unique
-  userId      Int    @unique
-  User        User   @relation(fields: [userId], references: [id])
+model Common {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @unique
+  User        User      @relation(fields: [userId], references: [id])
+  phoneNumber String?
+  dateOfBirth DateTime?
 }
 
 model Request {
@@ -72,4 +73,14 @@ model Adress {
   street    String?
   houseNum  String?
   flat      String?
+}
+
+model Permission {
+  id       Int     @id @default(autoincrement())
+  Operator Int
+  User     Int
+  Adress   Boolean
+  Passport Boolean
+  UserName Boolean
+  Common   Boolean
 }
