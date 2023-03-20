@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  OPERATOR
+}
+
+model User {
+  id          Int          @id @default(autoincrement())
+  FIO         UserName?
+  Adress      Adress?
+  Passport    Passport?
+  PhoneNumber PhoneNumber?
+  Request     Request[]
+  role        Role         @default(USER)
+  login       String       @unique
+  password    String
+}
+
+model PhoneNumber {
+  id          Int    @id @default(autoincrement())
+  phoneNumber String @unique
+  userId      Int    @unique
+  User        User   @relation(fields: [userId], references: [id])
+}
+
+model Request {
+  id      Int      @id @default(autoincrement())
+  userId  Int      @unique
+  User    User     @relation(fields: [userId], references: [id])
+  date    DateTime @default(now())
+  request String
+}
+
+model Passport {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @unique
+  User       User      @relation(fields: [userId], references: [id])
+  number     String?
+  series     String?
+  issuedBy   String?
+  issuedWhen DateTime?
+}
+
+model UserName {
+  id         Int     @id @default(autoincrement())
+  userId     Int     @unique
+  User       User    @relation(fields: [userId], references: [id])
+  firstName  String?
+  secondName String?
+  lastName   String?
+}
+
+model Adress {
+  id        Int     @id @default(autoincrement())
+  userId    Int     @unique
+  User      User    @relation(fields: [userId], references: [id])
+  city      String?
+  country   String?
+  area      String?
+  mailindex String?
+  street    String?
+  houseNum  String?
+  flat      String?
+}
