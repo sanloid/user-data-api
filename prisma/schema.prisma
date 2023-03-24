@@ -76,11 +76,12 @@ model Adress {
 }
 
 model Permission {
-  id       Int     @id @default(autoincrement())
   Operator Int
   User     Int
-  Adress   Boolean
-  Passport Boolean
-  UserName Boolean
-  Common   Boolean
+  Adress   Boolean @default(false)
+  Passport Boolean @default(false)
+  UserName Boolean @default(false)
+  Common   Boolean @default(false)
+
+  @@unique([Operator, User])
 }
