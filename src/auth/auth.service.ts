@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  NotAcceptableException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
@@ -20,21 +15,21 @@ export class AuthService {
   async validateUser(login: string, password: string): Promise<any> {
     const user = await this.usersService.findByLogin(login);
     if (!user)
-      throw new HttpException(
-        "User with this name doesn't exist",
-        HttpStatus.FORBIDDEN,
-      );
-    if (bcrypt.compare(password, user.password)) {
-      const { password, ...result } = user;
-      return result;
+      throw new UnauthorizedException({
+        message: "User with this name doesn't exist",
+      });
+    const passEqual = await bcrypt.compare(password, user.password);
+    if (user && passEqual) {
+      return user;
     }
-    return null;
+    throw new UnauthorizedException({ message: 'Wrong username or password' });
   }
 
   async login(loginDto: LoginDto) {
-    const payload = await this.validateUser(loginDto.login, loginDto.password);
-    console.log('login func');
-    console.log(payload);
+    const { password, ...payload } = await this.validateUser(
+      loginDto.login,
+      loginDto.password,
+    );
     return {
       access_token: this.jwtService.sign({ ...payload }),
     };
@@ -42,7 +37,6 @@ export class AuthService {
 
   async registration(registrationDto: RegistrationDto) {
     const user = await this.usersService.create(registrationDto);
-    console.log(user);
-    return this.login(user);
+    return await this.login(user);
   }
 }

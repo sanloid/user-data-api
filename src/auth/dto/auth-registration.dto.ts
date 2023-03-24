@@ -16,7 +16,7 @@ export class RegistrationDto {
 
   @IsString()
   @IsNotEmpty()
-  @Length(8, 20)
+  // @Length(8, 20)
   @ApiProperty()
   //   @IsStrongPassword()
   password: string;
