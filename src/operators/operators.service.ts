@@ -22,4 +22,14 @@ export class OperatorsService {
       },
     });
   }
+
+  async getAllMyUsers(id: number) {
+    const usersId = await this.prisma.permission.findMany({
+      where: {
+        Operator: id,
+      },
+    });
+    // console.log(usersId);
+    return usersId;
+  }
 }
