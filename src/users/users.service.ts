@@ -7,6 +7,10 @@ import { UpdatePassportDto } from './dto/update-user-passport.dto';
 import { UpdateCommonDto } from './dto/update-user-common.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcryptjs';
+import {
+  EPermission,
+  UpdatePermissionDto,
+} from './dto/update-permission-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -105,20 +109,44 @@ export class UsersService {
     });
   }
 
-  findOne(
-    id: number,
-    passport: boolean,
-    adress: boolean,
-    fio: boolean,
-    common: boolean,
-  ) {
+  findOne(id: number) {
     return this.prisma.user.findUnique({
       where: { id: id },
-      include: {
-        Adress: adress,
-        Passport: passport,
-        FIO: fio,
-        Common: common,
+      select: {
+        login: true,
+        role: true,
+        Adress: {
+          select: {
+            city: true,
+            country: true,
+            area: true,
+            mailindex: true,
+            street: true,
+            houseNum: true,
+            flat: true,
+          },
+        },
+        Passport: {
+          select: {
+            number: true,
+            series: true,
+            issuedBy: true,
+            issuedWhen: true,
+          },
+        },
+        FIO: {
+          select: {
+            firstName: true,
+            secondName: true,
+            lastName: true,
+          },
+        },
+        Common: {
+          select: {
+            phoneNumber: true,
+            dateOfBirth: true,
+          },
+        },
       },
     });
   }
@@ -135,5 +163,59 @@ export class UsersService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+
+  async userIsOperator(id: number) {
+    const oper = await this.prisma.user.findUnique({ where: { id } });
+    if (!oper)
+      throw new HttpException("User doesn't exist", HttpStatus.BAD_REQUEST);
+    return oper.role === 'OPERATOR';
+  }
+
+  async updatePermission(
+    userId: number,
+    updatePermissionDto: UpdatePermissionDto,
+  ) {
+    if (!(await this.userIsOperator(updatePermissionDto.operatorId))) {
+      throw new HttpException('User is not a OPERATOR', HttpStatus.BAD_REQUEST);
+    }
+    return await this.prisma.permission.upsert({
+      where: {
+        Operator_User: {
+          Operator: updatePermissionDto.operatorId,
+          User: userId,
+        },
+      },
+      create: {
+        Operator: updatePermissionDto.operatorId,
+        User: userId,
+        [updatePermissionDto.permission]: updatePermissionDto.value,
+      },
+      update: {
+        [updatePermissionDto.permission]: updatePermissionDto.value,
+      },
+    });
+  }
+
+  async getAllUserOperators(id: number) {
+    const res = await this.prisma.$queryRaw`
+    SELECT  
+    "public"."User"."id", 
+    "public"."User"."login", 
+    "public"."Permission"."Adress", 
+    "public"."Permission"."Passport", 
+    "public"."Permission"."UserName", 
+    "public"."Permission"."Common", 
+    "public"."UserName"."firstName",
+    "public"."UserName"."secondName",
+    "public"."UserName"."lastName"
+    FROM "public"."User" 
+    JOIN "public"."Permission" 
+    ON "public"."Permission"."Operator" = "public"."User"."id"
+    FULL JOIN "public"."UserName"
+    ON "public"."UserName"."userId" = "public"."User"."id"
+    WHERE "public"."Permission"."User" = ${id}
+    `;
+    return res;
   }
 }

@@ -6,9 +6,7 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
   ParseIntPipe,
-  ParseBoolPipe,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -21,6 +19,7 @@ import { UpdatePassportDto } from './dto/update-user-passport.dto';
 import { UpdateCommonDto } from './dto/update-user-common.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { OwnDataGuard } from 'src/auth/guards/owndate.guard';
+import { UpdatePermissionDto } from './dto/update-permission-user.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -40,17 +39,11 @@ export class UsersController {
   }
 
   @Get(':id')
-  @UseGuards(OwnDataGuard)
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Find user with id by query params' })
-  findOne(
-    @Param('id', ParseIntPipe) id: number,
-    @Query('passport', ParseBoolPipe) passport: boolean,
-    @Query('adress', ParseBoolPipe) adress: boolean,
-    @Query('fio', ParseBoolPipe) fio: boolean,
-    @Query('common', ParseBoolPipe) common: boolean,
-  ) {
-    return this.usersService.findOne(id, passport, adress, fio, common);
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Find user with id' })
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')
@@ -84,8 +77,8 @@ export class UsersController {
   }
 
   @Patch('fio/:id')
-  @UseGuards(OwnDataGuard)
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update user FIO with id' })
   updateFIO(
     @Param('id', ParseIntPipe) id: number,
@@ -114,5 +107,26 @@ export class UsersController {
     @Body() updatePhoneDto: UpdateCommonDto,
   ) {
     return this.usersService.updateCommon(id, updatePhoneDto);
+  }
+
+  @UseGuards(OwnDataGuard)
+  @UseGuards(JwtAuthGuard)
+  @Patch('permission/:id')
+  @ApiOperation({
+    summary: 'Updates permissions to receive data by the operator',
+  })
+  updatePermission(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updatePermissionDto: UpdatePermissionDto,
+  ) {
+    return this.usersService.updatePermission(id, updatePermissionDto);
+  }
+
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
+  @Get('operators/:id')
+  @ApiOperation({ summary: 'Return all user operators' })
+  getAllUserOperators(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.getAllUserOperators(id);
   }
 }
