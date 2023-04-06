@@ -32,13 +32,13 @@ export class OperatorsController {
   @Get('users/:id')
   @ApiOperation({
     summary:
-      'Selects all users available to the operator. ID - is a operator ID',
+      'Selects all users data available to the operator. ID - is a operator ID',
   })
-  @UseGuards(RolesGuard)
-  @UseGuards(OwnDataGuard)
-  @UseGuards(JwtAuthGuard)
-  @Roles('OPERATOR')
-  async getAllMyUser(@Param('id', ParseIntPipe) id: number) {
-    return this.operatorsService.getAllMyUsers(id);
+  // @UseGuards(RolesGuard)
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
+  // @Roles('OPERATOR')
+  async getAllOperatorUsersData(@Param('id', ParseIntPipe) id: number) {
+    return this.operatorsService.getAllOperatorUsersData(id);
   }
 }

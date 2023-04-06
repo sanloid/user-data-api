@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateAdresDto } from './dto/update-user-adress.dto';
+import { UpdateAddressDto } from './dto/update-user-address.dto';
 import { UpdateFIODto } from './dto/update-user-fio.dto';
 import { UpdatePassportDto } from './dto/update-user-passport.dto';
 import { UpdateCommonDto } from './dto/update-user-common.dto';
@@ -11,10 +11,14 @@ import {
   EPermission,
   UpdatePermissionDto,
 } from './dto/update-permission-user.dto';
+import { FilesService } from 'src/files/files.service';
 
 @Injectable()
 export class UsersService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly filesService: FilesService,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     const hashPassword = await bcrypt.hash(createUserDto.password, 5);
@@ -37,7 +41,7 @@ export class UsersService {
   findAll() {
     return this.prisma.user.findMany({
       include: {
-        Adress: true,
+        Address: true,
         Passport: true,
         FIO: true,
         Common: true,
@@ -61,16 +65,16 @@ export class UsersService {
     });
   }
 
-  updateAdress(id: number, updateAdresDto: UpdateAdresDto) {
+  updateAddresss(id: number, updateAddressDto: UpdateAddressDto) {
     return this.prisma.user.update({
       where: {
         id: id,
       },
       data: {
-        Adress: {
+        Address: {
           upsert: {
-            create: { ...updateAdresDto },
-            update: { ...updateAdresDto },
+            create: { ...updateAddressDto },
+            update: { ...updateAddressDto },
           },
         },
       },
@@ -112,42 +116,45 @@ export class UsersService {
   findOne(id: number) {
     return this.prisma.user.findUnique({
       where: { id: id },
-      select: {
-        login: true,
-        role: true,
-        Adress: {
-          select: {
-            city: true,
-            country: true,
-            area: true,
-            mailindex: true,
-            street: true,
-            houseNum: true,
-            flat: true,
-          },
-        },
-        Passport: {
-          select: {
-            number: true,
-            series: true,
-            issuedBy: true,
-            issuedWhen: true,
-          },
-        },
-        FIO: {
-          select: {
-            firstName: true,
-            secondName: true,
-            lastName: true,
-          },
-        },
-        Common: {
-          select: {
-            phoneNumber: true,
-            dateOfBirth: true,
-          },
-        },
-      },
+      // select: {
+      //   login: true,
+      //   role: true,
+      //   description: true,
+      //   email: true,
+      //   photo: true,
+      //   Address: {
+      //     select: {
+      //       city: true,
+      //       country: true,
+      //       area: true,
+      //       mailindex: true,
+      //       street: true,
+      //       houseNum: true,
+      //       flat: true,
+      //     },
+      //   },
+      //   Passport: {
+      //     select: {
+      //       number: true,
+      //       series: true,
+      //       issuedBy: true,
+      //       issuedWhen: true,
+      //     },
+      //   },
+      //   FIO: {
+      //     select: {
+      //       firstName: true,
+      //       secondName: true,
+      //       lastName: true,
+      //     },
+      //   },
+      //   Common: {
+      //     select: {
+      //       phoneNumber: true,
+      //       dateOfBirth: true,
+      //     },
+      //   },
+      // },
     });
   }
 
@@ -200,22 +207,38 @@ export class UsersService {
   async getAllUserOperators(id: number) {
     const res = await this.prisma.$queryRaw`
     SELECT  
-    "public"."User"."id", 
-    "public"."User"."login", 
-    "public"."Permission"."Adress", 
-    "public"."Permission"."Passport", 
-    "public"."Permission"."UserName", 
-    "public"."Permission"."Common", 
-    "public"."UserName"."firstName",
-    "public"."UserName"."secondName",
-    "public"."UserName"."lastName"
-    FROM "public"."User" 
-    JOIN "public"."Permission" 
-    ON "public"."Permission"."Operator" = "public"."User"."id"
-    FULL JOIN "public"."UserName"
-    ON "public"."UserName"."userId" = "public"."User"."id"
-    WHERE "public"."Permission"."User" = ${id}
+    pu."id", 
+    pu."login", 
+    pp."Address", 
+    pp."Passport", 
+    pp."UserName", 
+    pp."Common", 
+    pun."firstName",
+    pun."secondName",
+    pun."lastName"
+    FROM "public"."User" as pu
+    JOIN "public"."Permission" as pp
+    ON pp."Operator" = pu."id"
+    FULL JOIN "public"."UserName" as pun
+    ON pun."userId" = pu."id"
+    WHERE pp."User" = ${id}
     `;
     return res;
+  }
+
+  async updateUserPhoto(id: number, image: any) {
+    const name = `/${id}user-avatar.jpg`;
+    const link = await this.filesService.uploadFileAndGetLinkDropbox(
+      image,
+      name,
+    );
+    return await this.prisma.user.update({
+      where: {
+        id: id,
+      },
+      data: {
+        photo: link,
+      },
+    });
   }
 }

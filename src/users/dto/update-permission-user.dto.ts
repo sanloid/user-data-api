@@ -3,7 +3,7 @@ import { IsBoolean, IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
 
 export enum EPermission {
   FIO = 'UserName',
-  ADRESS = 'Adress',
+  ADDRESS = 'Address',
   PASSPORT = 'Passport',
   COMMON = 'Common',
 }

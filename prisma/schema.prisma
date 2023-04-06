@@ -16,15 +16,18 @@ enum Role {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  FIO      UserName?
-  Adress   Adress?
-  Passport Passport?
-  Common   Common?
-  Request  Request[]
-  role     Role      @default(USER)
-  login    String    @unique
-  password String
+  id          Int       @id @default(autoincrement())
+  FIO         UserName?
+  Address     Address?
+  Passport    Passport?
+  Common      Common?
+  Request     Request[]
+  role        Role      @default(USER)
+  login       String    @unique
+  password    String
+  email       String?   @unique
+  description String?
+  photo       String    @default("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq7THos5DcGbF-ICH-9LAr2xSsJ__xiKLGACm34ouEhRDdPfIc7aKb7f6MG1d2rmhN-aA&usqp=CAU")
 }
 
 model Common {
@@ -62,7 +65,7 @@ model UserName {
   lastName   String?
 }
 
-model Adress {
+model Address {
   id        Int     @id @default(autoincrement())
   userId    Int     @unique
   User      User    @relation(fields: [userId], references: [id])
@@ -78,7 +81,7 @@ model Adress {
 model Permission {
   Operator Int
   User     Int
-  Adress   Boolean @default(false)
+  Address  Boolean @default(false)
   Passport Boolean @default(false)
   UserName Boolean @default(false)
   Common   Boolean @default(false)

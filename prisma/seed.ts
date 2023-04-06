@@ -4,41 +4,108 @@ import { set } from 'date-fns';
 const prisma = new PrismaClient();
 
 async function main() {
-  const user1 = prisma.user.upsert({
-    where: { login: 'sanloid' },
-    update: {},
-    create: {
-      login: 'sanloid',
-      password: '123456',
-      FIO: {
-        create: {
-          firstName: 'Александр',
-          secondName: 'Васильченко',
-          lastName: 'Алексеевич',
-        },
+  const user1 = await prisma.user.createMany({
+    data: [
+      {
+        login: 'user1',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
       },
-      Adress: {
-        create: {
-          city: 'Омск',
-          country: 'Россия',
-          area: 'Омская область',
-        },
+      {
+        login: 'user2',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
       },
-      Passport: {
-        create: {
-          number: '1234',
-          series: '1234',
-          issuedBy: 'someone',
-          issuedWhen: set(new Date(), { hours: 1, minutes: 10 }),
-        },
+      {
+        login: 'user3',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
       },
-      Common: {
-        create: {
-          phoneNumber: '12345678',
-          dateOfBirth: set(new Date(), { hours: 1, minutes: 10 }),
-        },
+      {
+        login: 'user4',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
       },
-    },
+      {
+        login: 'user5',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
+      },
+      {
+        login: 'user6',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
+      },
+      {
+        login: 'user7',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
+      },
+      {
+        login: 'user8',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
+      },
+      {
+        login: 'user9',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
+      },
+      {
+        login: 'user10',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
+      },
+      {
+        login: 'operator1',
+        role: 'OPERATOR',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
+      },
+      {
+        login: 'operator2',
+        role: 'OPERATOR',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
+      },
+      {
+        login: 'operator3',
+        role: 'OPERATOR',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
+      },
+      {
+        login: 'operator4',
+        role: 'OPERATOR',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
+      },
+      {
+        login: 'operator5',
+        role: 'OPERATOR',
+        password:
+          '$2a$05$PvuE.XtqVoyODj16FEL87ee7jCKt2mbxuJrpwMkVRxO00PPZ9zFu6',
+      },
+    ],
+  });
+  const operators = [11, 12, 13, 14, 15];
+  const users = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const dat = [].concat(
+    ...operators.map((e) => {
+      return users.map((i) => {
+        return {
+          Operator: e,
+          User: i,
+          Address: true,
+          UserName: true,
+          Common: true,
+          Passport: true,
+        };
+      });
+    }),
+  );
+  const permissions = await prisma.permission.createMany({
+    data: dat,
   });
   console.log(user1);
 }
@@ -49,5 +116,6 @@ main()
     process.exit(1);
   })
   .finally(async () => {
+    console.log('seeding done');
     await prisma.$disconnect();
   });

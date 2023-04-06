@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsISO8601, IsPhoneNumber } from 'class-validator';
+import { IsISO8601, IsPhoneNumber, Matches } from 'class-validator';
 
 export class UpdateCommonDto {
   @IsPhoneNumber('RU')

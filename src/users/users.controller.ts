@@ -8,18 +8,21 @@ import {
   Delete,
   ParseIntPipe,
   UseGuards,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UpdateFIODto } from './dto/update-user-fio.dto';
-import { UpdateAdresDto } from './dto/update-user-adress.dto';
+import { UpdateAddressDto } from './dto/update-user-address.dto';
 import { UpdatePassportDto } from './dto/update-user-passport.dto';
 import { UpdateCommonDto } from './dto/update-user-common.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { OwnDataGuard } from 'src/auth/guards/owndate.guard';
 import { UpdatePermissionDto } from './dto/update-permission-user.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('users')
 @ApiTags('users')
@@ -39,8 +42,8 @@ export class UsersController {
   }
 
   @Get(':id')
-  // @UseGuards(OwnDataGuard)
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(OwnDataGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Find user with id' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOne(id);
@@ -65,20 +68,20 @@ export class UsersController {
     return this.usersService.remove(+id);
   }
 
-  @Patch('adress/:id')
+  @Patch('address/:id')
   @UseGuards(OwnDataGuard)
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Update user Adress with id' })
-  updateAdress(
+  @ApiOperation({ summary: 'Update user Address with id' })
+  updateAddress(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateAdresDto: UpdateAdresDto,
+    @Body() updateAddressDto: UpdateAddressDto,
   ) {
-    return this.usersService.updateAdress(id, updateAdresDto);
+    return this.usersService.updateAddresss(id, updateAddressDto);
   }
 
   @Patch('fio/:id')
-  // @UseGuards(OwnDataGuard)
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(OwnDataGuard)
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update user FIO with id' })
   updateFIO(
     @Param('id', ParseIntPipe) id: number,
@@ -122,11 +125,23 @@ export class UsersController {
     return this.usersService.updatePermission(id, updatePermissionDto);
   }
 
-  // @UseGuards(OwnDataGuard)
-  // @UseGuards(JwtAuthGuard)
+  @UseGuards(OwnDataGuard)
+  @UseGuards(JwtAuthGuard)
   @Get('operators/:id')
   @ApiOperation({ summary: 'Return all user operators' })
   getAllUserOperators(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.getAllUserOperators(id);
+  }
+
+  @Patch('uploadphoto/:id')
+  @UseInterceptors(FileInterceptor('photo'))
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Return all user operators' })
+  updateUserPhoto(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() photo,
+  ) {
+    return this.usersService.updateUserPhoto(id, photo);
   }
 }
