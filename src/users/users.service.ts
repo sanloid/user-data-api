@@ -116,45 +116,6 @@ export class UsersService {
   findOne(id: number) {
     return this.prisma.user.findUnique({
       where: { id: id },
-      // select: {
-      //   login: true,
-      //   role: true,
-      //   description: true,
-      //   email: true,
-      //   photo: true,
-      //   Address: {
-      //     select: {
-      //       city: true,
-      //       country: true,
-      //       area: true,
-      //       mailindex: true,
-      //       street: true,
-      //       houseNum: true,
-      //       flat: true,
-      //     },
-      //   },
-      //   Passport: {
-      //     select: {
-      //       number: true,
-      //       series: true,
-      //       issuedBy: true,
-      //       issuedWhen: true,
-      //     },
-      //   },
-      //   FIO: {
-      //     select: {
-      //       firstName: true,
-      //       secondName: true,
-      //       lastName: true,
-      //     },
-      //   },
-      //   Common: {
-      //     select: {
-      //       phoneNumber: true,
-      //       dateOfBirth: true,
-      //     },
-      //   },
-      // },
     });
   }
 
