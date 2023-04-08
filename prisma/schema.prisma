@@ -27,7 +27,7 @@ model User {
   password    String
   email       String?   @unique
   description String?
-  photo       String    @default("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTq7THos5DcGbF-ICH-9LAr2xSsJ__xiKLGACm34ouEhRDdPfIc7aKb7f6MG1d2rmhN-aA&usqp=CAU")
+  photo       String?
 }
 
 model Common {

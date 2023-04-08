@@ -65,8 +65,8 @@ export class UsersService {
     });
   }
 
-  updateAddresss(id: number, updateAddressDto: UpdateAddressDto) {
-    return this.prisma.user.update({
+  async updateAddresss(id: number, updateAddressDto: UpdateAddressDto) {
+    const resp = await this.prisma.user.update({
       where: {
         id: id,
       },
@@ -79,6 +79,8 @@ export class UsersService {
         },
       },
     });
+    console.log(resp);
+    return resp;
   }
 
   updateFIO(id: number, updateFIODto: UpdateFIODto) {
@@ -116,6 +118,12 @@ export class UsersService {
   findOne(id: number) {
     return this.prisma.user.findUnique({
       where: { id: id },
+      select: {
+        Address: true,
+        Passport: true,
+        Common: true,
+        FIO: true,
+      },
     });
   }
 
