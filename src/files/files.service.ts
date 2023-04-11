@@ -1,4 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import * as fs from 'fs';
+import * as path from 'path';
+import * as uuid from 'uuid';
 import { Dropbox } from 'dropbox';
 
 @Injectable()
@@ -37,7 +40,7 @@ export class FilesService {
     }
   }
 
-  async doesFileExist(fileName: string): Promise<boolean> {
+  async doesFileExistDropbox(fileName: string): Promise<boolean> {
     try {
       const response = await this.dropbox.filesGetMetadata({
         path: fileName,
@@ -62,5 +65,22 @@ export class FilesService {
   ): Promise<string> {
     await this.uploadFileDropbox(file, fileName);
     return await this.getFileLinkDropbox(fileName);
+  }
+
+  async createFile(file: any, name: string): Promise<string> {
+    try {
+      const fileName = name;
+      const filePath = path.resolve(__dirname, '..', 'static');
+      if (!fs.existsSync(filePath)) {
+        fs.mkdirSync(filePath, { recursive: true });
+      }
+      fs.writeFileSync(path.join(filePath, fileName), file.buffer);
+      return fileName;
+    } catch (error) {
+      throw new HttpException(
+        'Something went wrong while uploading profile photo',
+        HttpStatus.FORBIDDEN,
+      );
+    }
   }
 }

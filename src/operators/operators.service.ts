@@ -1,6 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UsersService } from 'src/users/users.service';
+import {
+  OperatorSendRequestDTO,
+  RequestStatus,
+} from './dto/operators-send-request.dto';
 
 @Injectable()
 export class OperatorsService {
@@ -42,5 +46,21 @@ export class OperatorsService {
     WHERE p."Operator" = ${operatorId}
     `;
     return res;
+  }
+
+  async operatorSendRequest(id: number, request: OperatorSendRequestDTO) {
+    try {
+      const res = await this.prisma.request.create({
+        data: {
+          userId: Number(request.userId),
+          operatorId: id,
+          dataType: request.datatype,
+          status: RequestStatus.PENDING,
+        },
+      });
+      return res;
+    } catch {
+      throw new HttpException('something went wrong', HttpStatus.CONFLICT);
+    }
   }
 }

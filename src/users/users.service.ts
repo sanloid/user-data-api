@@ -118,12 +118,6 @@ export class UsersService {
   findOne(id: number) {
     return this.prisma.user.findUnique({
       where: { id: id },
-      select: {
-        Address: true,
-        Passport: true,
-        Common: true,
-        FIO: true,
-      },
     });
   }
 
@@ -196,17 +190,14 @@ export class UsersService {
   }
 
   async updateUserPhoto(id: number, image: any) {
-    const name = `/${id}user-avatar.jpg`;
-    const link = await this.filesService.uploadFileAndGetLinkDropbox(
-      image,
-      name,
-    );
+    const name = `/${id}-user-avatar.jpg`;
+    await this.filesService.createFile(image, name);
     return await this.prisma.user.update({
       where: {
         id: id,
       },
       data: {
-        photo: link,
+        photo: name,
       },
     });
   }

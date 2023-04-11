@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Post,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -13,6 +14,7 @@ import { Roles } from './decorators/roles.decorator';
 import { PermissionGuard } from './guards/operator-permission.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { OperatorsService } from './operators.service';
+import { OperatorSendRequestDTO } from './dto/operators-send-request.dto';
 
 @Controller('operators')
 @ApiTags('operators')
@@ -40,5 +42,20 @@ export class OperatorsController {
   // @Roles('OPERATOR')
   async getAllOperatorUsersData(@Param('id', ParseIntPipe) id: number) {
     return this.operatorsService.getAllOperatorUsersData(id);
+  }
+
+  @Post('request/:id')
+  @ApiOperation({
+    summary: 'Send request to user data',
+  })
+  // @UseGuards(RolesGuard)
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
+  // @Roles('OPERATOR')
+  async operatorSendRequest(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() request: OperatorSendRequestDTO,
+  ) {
+    return this.operatorsService.operatorSendRequest(id, request);
   }
 }

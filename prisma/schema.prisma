@@ -15,13 +15,25 @@ enum Role {
   OPERATOR
 }
 
+enum DataType {
+  ADDRESS
+  COMMON
+  USERNAME
+  PASSPORT
+}
+
+enum RequestStatus {
+  PENDING
+  REJECTED
+  ACCEPTED
+}
+
 model User {
   id          Int       @id @default(autoincrement())
   FIO         UserName?
   Address     Address?
   Passport    Passport?
   Common      Common?
-  Request     Request[]
   role        Role      @default(USER)
   login       String    @unique
   password    String
@@ -39,11 +51,14 @@ model Common {
 }
 
 model Request {
-  id      Int      @id @default(autoincrement())
-  userId  Int      @unique
-  User    User     @relation(fields: [userId], references: [id])
-  date    DateTime @default(now())
-  request String
+  // id         Int           @id @default(autoincrement())
+  userId     Int
+  operatorId Int
+  dataType   DataType
+  status     RequestStatus
+  date       DateTime      @default(now())
+
+  @@unique([userId, operatorId, dataType])
 }
 
 model Passport {
