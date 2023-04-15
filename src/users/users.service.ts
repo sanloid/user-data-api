@@ -12,6 +12,7 @@ import {
   UpdatePermissionDto,
 } from './dto/update-permission-user.dto';
 import { FilesService } from 'src/files/files.service';
+import { ResponseToRequestsDTO } from './dto/response-to-request.dto';
 
 @Injectable()
 export class UsersService {
@@ -115,10 +116,32 @@ export class UsersService {
     });
   }
 
-  findOne(id: number) {
-    return this.prisma.user.findUnique({
+  exclude<User, Key extends keyof User>(
+    user: User,
+    keys: Key[],
+  ): Omit<User, Key> {
+    for (let key of keys) {
+      delete user[key];
+    }
+    return user;
+  }
+
+  async findOne(id: number) {
+    const res = await this.prisma.user.findUnique({
       where: { id: id },
+      include: {
+        Address: {},
+        Common: true,
+        FIO: true,
+        Passport: true,
+      },
     });
+    this.exclude(res, ['password']);
+    if (res.Address) this.exclude(res.Address, ['id', 'userId']);
+    if (res.Common) this.exclude(res.Common, ['id', 'userId']);
+    if (res.Passport) this.exclude(res.Passport, ['id', 'userId']);
+    if (res.FIO) this.exclude(res.FIO, ['id', 'userId']);
+    return res;
   }
 
   async findByLogin(login: string) {
@@ -200,5 +223,43 @@ export class UsersService {
         photo: name,
       },
     });
+  }
+
+  async getProfile(id: number) {
+    const res = await this.prisma.user.findUnique({
+      where: { id: id },
+      select: {
+        id: true,
+        description: true,
+        email: true,
+        photo: true,
+        FIO: {
+          select: {
+            firstName: true,
+            lastName: true,
+          },
+        },
+      },
+    });
+    return res;
+  }
+
+  async getRequests(id: number) {
+    return await this.prisma.request.findMany({
+      where: {
+        userId: id,
+      },
+    });
+  }
+
+  async responseToRequests(
+    id: number,
+    responseToRequests: ResponseToRequestsDTO,
+  ) {
+    // return await this.prisma.request.upsert({
+    //   where : {
+    //     use
+    //   }
+    // });
   }
 }

@@ -23,6 +23,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { OwnDataGuard } from 'src/auth/guards/owndate.guard';
 import { UpdatePermissionDto } from './dto/update-permission-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ResponseToRequestsDTO } from './dto/response-to-request.dto';
 
 @Controller('users')
 @ApiTags('users')
@@ -42,16 +43,16 @@ export class UsersController {
   }
 
   @Get(':id')
-  @UseGuards(OwnDataGuard)
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Find user with id' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.findOne(id);
   }
 
   @Patch(':id')
-  @UseGuards(OwnDataGuard)
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update user with id' })
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -61,16 +62,16 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @UseGuards(OwnDataGuard)
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Delete user with id' })
   remove(@Param('id', ParseIntPipe) id: number) {
     return this.usersService.remove(+id);
   }
 
   @Patch('address/:id')
-  @UseGuards(OwnDataGuard)
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update user Address with id' })
   updateAddress(
     @Param('id', ParseIntPipe) id: number,
@@ -80,8 +81,8 @@ export class UsersController {
   }
 
   @Patch('fio/:id')
-  @UseGuards(OwnDataGuard)
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update user FIO with id' })
   updateFIO(
     @Param('id', ParseIntPipe) id: number,
@@ -91,8 +92,8 @@ export class UsersController {
   }
 
   @Patch('passport/:id')
-  @UseGuards(OwnDataGuard)
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update user Passport with id' })
   updatePassport(
     @Param('id', ParseIntPipe) id: number,
@@ -102,8 +103,8 @@ export class UsersController {
   }
 
   @Patch('common/:id')
-  @UseGuards(OwnDataGuard)
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Update user common data with id' })
   updateCommon(
     @Param('id', ParseIntPipe) id: number,
@@ -112,8 +113,8 @@ export class UsersController {
     return this.usersService.updateCommon(id, updatePhoneDto);
   }
 
-  @UseGuards(OwnDataGuard)
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
   @Patch('permission/:id')
   @ApiOperation({
     summary: 'Updates permissions to receive data by the operator',
@@ -125,8 +126,8 @@ export class UsersController {
     return this.usersService.updatePermission(id, updatePermissionDto);
   }
 
-  @UseGuards(OwnDataGuard)
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
   @Get('operators/:id')
   @ApiOperation({ summary: 'Return all user operators' })
   getAllUserOperators(@Param('id', ParseIntPipe) id: number) {
@@ -143,5 +144,29 @@ export class UsersController {
     @UploadedFile() photo,
   ) {
     return this.usersService.updateUserPhoto(id, photo);
+  }
+
+  @Get('profile/:id')
+  getProfile(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.getProfile(id);
+  }
+
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Return all request sended to users' })
+  @Get('requests/:id')
+  getRequests(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.getRequests(id);
+  }
+
+  // @UseGuards(OwnDataGuard)
+  // @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Return all request sended to users' })
+  @Get('requests/:id')
+  responseToRequests(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() responseToRequests: ResponseToRequestsDTO,
+  ) {
+    return this.usersService.responseToRequests(id, responseToRequests);
   }
 }
